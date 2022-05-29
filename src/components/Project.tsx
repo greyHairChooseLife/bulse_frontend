@@ -16,7 +16,6 @@ export const Project = () => {
 
 	const [ identity, setIdentity ] = useState<Iidentity>({mobileNumber: '', name: '', entered: false});
 	const [ projectList, setProjectList ] = useState<null>(null);
-	const [ error, setError ] = useState<any>();
 
 	//타이핑 할 때마다 setter함수 실행
 	const onChangeIdentity = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +41,10 @@ export const Project = () => {
 			}
 		})
 		if(haveNaN !== false) return false;
+		if(name.trim() === ''){
+			alert('이름을 입력 해 주세요.')
+			return false;
+		}
 
 		return true;
 	};
