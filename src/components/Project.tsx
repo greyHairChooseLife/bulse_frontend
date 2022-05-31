@@ -40,37 +40,12 @@ export const Project = () => {
 	});
 	const [ newProjectDate, setNewProjectDate ] = useState<Date>(new Date());
 
-	interface IValidationErrMsg {
-		subject: string | null
-		description: string | null
-		bankAccount: string | null
-		bankHost: string | null
-		bankHolderName: string | null
-	}
+	const [ subjectErrMsg, setSubjectErrMsg ] = useState<string>('제목을 입력 해 주세요.');
+	const [ descriptionErrMsg, setDescriptionErrMsg ] = useState<string>('상세 설명을 조금만 입력 해 주세요.');
+	const [ bankAccountErrMsg, setBankAccountErrMsg ] = useState<string>('계좌번호를 정확히 적어주세요.');
+	const [ bankHostErrMsg, setBankHostErrMsg ] = useState<string>('어떤 은행인지 입력 해 주세요.');
+	const [ bankHolderNameErrMsg, setBankHolderNameErrMsg ] = useState<string>('계좌 소유자를 입력 해 주세요.');
 
-	const [ validationErrMsg, setValidationErrMsg ] = useState<IValidationErrMsg>({
-		subject: '제목을 입력 해 주세요.',
-		description: '상세 설명을 조금만 입력 해 주세요.',
-		bankAccount: '계좌번호를 정확히 적어주세요.',
-		bankHost: '어떤 은행인지 입력 해 주세요.',
-		bankHolderName: '계좌 소유자를 입력 해 주세요.',
-	});
-
-	interface IValidationErrCheck {
-		subject: boolean
-		description: boolean
-		bankAccount: boolean
-		bankHost: boolean
-		bankHolderName: boolean
-	}
-
-	const [ validationErrCheck, setValidationErrCheck ] = useState<IValidationErrCheck>({
-		subject: true,
-		description: true,
-		bankAccount: true,
-		bankHost: true,
-		bankHolderName: true,
-	})
 
 	// About IDENTITY
 	// 타이핑 할 때마다 setter함수 실행
@@ -135,154 +110,40 @@ export const Project = () => {
 			...newProject,
 			[name]: value,
 		});
-		console.log('kkk: ', validationErrCheck);
-	};
 
-	useEffect(() => {
-		if(newProject.projectSubject.trim() === ''){
-			setValidationErrCheck({
-				...validationErrCheck,
-				subject: true
-			})
-		}else{
-			setValidationErrCheck({
-				...validationErrCheck,
-				subject: false
-			})
-		}
-
-		if(newProject.projectDescription.trim() === ''){
-			setValidationErrCheck({
-				...validationErrCheck,
-				description: true
-			})
-		}else{
-			setValidationErrCheck({
-				...validationErrCheck,
-				description: false
-			})
-		}
-
-		let haveNaN = false;
-		String(newProject.bankAccount).split('').forEach(ele => {
-			if(isNaN(parseInt(ele))) haveNaN = true;
-		})
-		if(haveNaN !== false || newProject.bankAccount === 0){
-			setValidationErrCheck({
-				...validationErrCheck,
-				bankAccount: true
-			})
-		}else{
-			setValidationErrCheck({
-				...validationErrCheck,
-				bankAccount: false
-			})
-		}
-
-		if(newProject.bankHost.trim() === ''){
-			setValidationErrCheck({
-				...validationErrCheck,
-				bankHost: true
-			})
-		}else{
-			setValidationErrCheck({
-				...validationErrCheck,
-				bankHost: false
-			})
-		}
-
-		if(newProject.bankHolderName.trim() === ''){
-			setValidationErrCheck({
-				...validationErrCheck,
-				bankHolderName: true
-			})
-		}else{
-			setValidationErrCheck({
-				...validationErrCheck,
-				bankHolderName: false
-			})
-		}
-	}, [newProject])
-
-	const onChangeProjectCheckErr = (index: string) => {
-		switch(index){
-			case 'subject':
-				if(newProject.projectSubject.trim() === ''){
-					setValidationErrCheck({
-						...validationErrCheck,
-						subject: true
-					})
-					console.log('subject wrong');
-				}else{
-					setValidationErrCheck({
-						...validationErrCheck,
-						subject: false
-					})
-					console.log('subject fine');
-				}
+		//	에러메시지 핸들링
+		switch (name){
+			case 'projectSubject':
+				console.log('so..: ', value.trim());
+				if(value.trim() !== '') setSubjectErrMsg('');
+				else setSubjectErrMsg('제목을 입력 해 주세요.');
 				break;
-			case 'description':
-				if(newProject.projectDescription.trim() === ''){
-					setValidationErrCheck({
-						...validationErrCheck,
-						description: true
-					})
-					console.log('description wrong');
-				}else{
-					setValidationErrCheck({
-						...validationErrCheck,
-						description: false
-					})
-					console.log('description fine');
-				}
+			case 'projectDescription':
+				console.log('so..: ', value.trim());
+				if(value.trim() !== '') setDescriptionErrMsg('');
+				else setDescriptionErrMsg('상세 설명을 조금만 입력 해 주세요.');
 				break;
 			case 'bankAccount':
+				console.log('so..: ', value.trim());
 				let haveNaN = false;
-				String(newProject.bankAccount).split('').forEach(ele => {
+				value.split('').forEach(ele => {
 					if(isNaN(parseInt(ele))) haveNaN = true;
 				})
-				if(haveNaN !== false || newProject.bankAccount === 0){
-					setValidationErrCheck({
-						...validationErrCheck,
-						bankAccount: true
-					})
-				}else{
-					setValidationErrCheck({
-						...validationErrCheck,
-						bankAccount: false
-					})
-				}
+				if(haveNaN !== false || parseInt(value) === 0) setBankAccountErrMsg('계좌번호를 정확히 적어주세요.');
+				else setBankAccountErrMsg('');
 				break;
 			case 'bankHost':
-				if(newProject.bankHost.trim() === ''){
-					setValidationErrCheck({
-						...validationErrCheck,
-						bankHost: true
-					})
-				}else{
-					setValidationErrCheck({
-						...validationErrCheck,
-						bankHost: false
-					})
-				}
+				console.log('so..: ', value.trim());
+				if(value.trim() !== '') setBankHostErrMsg('');
+				else setBankHostErrMsg('어떤 은행인지 입력 해 주세요.');
 				break;
 			case 'bankHolderName':
-				if(newProject.bankHolderName.trim() === ''){
-					setValidationErrCheck({
-						...validationErrCheck,
-						bankHolderName: true
-					})
-				}else{
-					setValidationErrCheck({
-						...validationErrCheck,
-						bankHolderName: false
-					})
-				}
+				console.log('so..: ', value.trim());
+				if(value.trim() !== '') setBankHolderNameErrMsg('');
+				else setBankHolderNameErrMsg('계좌 소유자를 입력 해 주세요.');
 				break;
-			default :
-				console.log('wrong string');
 		}
-	}
+	};
 
 //			<button onClick={async () => {
 //				const form: {sanitizing: ISanitizeNewProject, posting: IPostNewProject} = {
@@ -346,27 +207,25 @@ export const Project = () => {
 				<option value="1">1시간</option>
 				<option value="2">2시간</option>
 			</select>
-			<input type="text" placeholder="projectSubject" onChange={(e)=>{onChangeProject(e); onChangeProjectCheckErr('subject')}} name="projectSubject"></input>
-			<label>{validationErrMsg.subject}</label>
+			<input type="text" placeholder="projectSubject" onChange={onChangeProject} name="projectSubject"></input>
+			<label>{subjectErrMsg}</label>
 
-			<input type="text" placeholder="projectKeyword" onChange={(e)=>{onChangeProject(e);}} name="projectKeyword"></input>
+			<input type="text" placeholder="projectKeyword" onChange={onChangeProject} name="projectKeyword"></input>
 
-			<textarea placeholder="projectDescription" onChange={(e)=>{onChangeProject(e); onChangeProjectCheckErr('description')}} name="projectDescription"></textarea>
-			<label>{validationErrMsg.description}</label>
+			<textarea placeholder="projectDescription" onChange={onChangeProject} name="projectDescription"></textarea>
+			<label>{descriptionErrMsg}</label>
 
 			<h2>about Bank</h2>
-			<input type="text" placeholder="bankAccount" onChange={(e)=>{onChangeProject(e); onChangeProjectCheckErr('bankAccount')}} name="bankAccount"></input>
-			<label>{validationErrMsg.bankAccount}</label>
+			<input type="text" placeholder="bankAccount" onChange={onChangeProject} name="bankAccount"></input>
+			<label>{bankAccountErrMsg}</label>
 
-			<input type="text" placeholder="bankHost" onChange={(e)=>{onChangeProject(e); onChangeProjectCheckErr('bankHost')}} name="bankHost"></input>
-			<label>{validationErrMsg.bankHost}</label>
+			<input type="text" placeholder="bankHost" onChange={onChangeProject} name="bankHost"></input>
+			<label>{bankHostErrMsg}</label>
 
-			<input type="text" placeholder="bankHolderName" onChange={(e)=>{onChangeProject(e); onChangeProjectCheckErr('bankHolderName')}} name="bankHolderName"></input>
-			<label>{validationErrMsg.bankHolderName}</label>
+			<input type="text" placeholder="bankHolderName" onChange={onChangeProject} name="bankHolderName"></input>
+			<label>{bankHolderNameErrMsg}</label>
 
 			<button onClick={() => {
-				console.log('clicked');
-				console.log('how is it?: ', validationErrCheck);
 			}}>신청완료</button>
 		</div>;
 
