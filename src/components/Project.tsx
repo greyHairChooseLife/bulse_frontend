@@ -40,6 +40,9 @@ export const Project = () => {
 	});
 	const [ newProjectDate, setNewProjectDate ] = useState<Date>(new Date());
 
+	const [ mobileNumberErrMsg, setMobileNumberErrMsg ] = useState<string>('숫자만 입력 해 주세요.');
+	const [ nameErrMsg, setNameErrMsg ] = useState<string>('이름을 입력 해 주세요.');
+
 	const [ subjectErrMsg, setSubjectErrMsg ] = useState<string>('제목을 입력 해 주세요.');
 	const [ descriptionErrMsg, setDescriptionErrMsg ] = useState<string>('상세 설명을 조금만 입력 해 주세요.');
 	const [ bankAccountErrMsg, setBankAccountErrMsg ] = useState<string>('계좌번호를 정확히 적어주세요.');
@@ -55,6 +58,23 @@ export const Project = () => {
 			...identity,
 			[name]: value,
 		});
+		
+		switch(name){
+			case 'name':
+				if(value.trim() === '') setNameErrMsg('이름을 입력 해 주세요.');
+				else setNameErrMsg('good');
+				break;
+			case 'mobileNumber':
+				let haveNaN = false;
+				value.split('').forEach((ele) => {
+					if(isNaN(parseInt(ele))) haveNaN = true;
+				})
+				if(haveNaN !== false) setMobileNumberErrMsg('숫자만 입력 해 주세요.');
+				if(value.length !== 11) setMobileNumberErrMsg('11자리 전화번호를 정확히 입력해 주세요.');
+				if(haveNaN === false && value.length === 11) setMobileNumberErrMsg('good');
+			default:
+				console.log('something wrong at Project.tsx');
+		}
 	};
 
 	// 이름, 전화번호 유효성 확인
@@ -69,7 +89,7 @@ export const Project = () => {
 			if(isNaN(parseInt(ele))) haveNaN = true;
 		})
 		if(haveNaN !== false){
-			alert('숫자만 넣어 주세요.');
+			alert(' 넣어 주세요.');
 			return false;
 		}
 		if(name.trim() === ''){
@@ -89,17 +109,19 @@ export const Project = () => {
 	const identityInput = 
 		<div>
 			<h2>identity</h2>
-			<input placeholder="name" onChange={onChangeIdentity} value={identity.name} name="name"></input>
-			<input placeholder="mobile" onChange={onChangeIdentity} value={identity.mobileNumber} name="mobileNumber"></input>
+			<input type="text" placeholder="name" onChange={onChangeIdentity} value={identity.name} name="name"></input>
+			<label>{nameErrMsg}</label>
+			<input type="text" placeholder="mobile" onChange={onChangeIdentity} value={identity.mobileNumber} name="mobileNumber"></input>
+			<label>{mobileNumberErrMsg}</label>
 			<button onClick={() => {
-				if(checkValideIdentity(identity.name, identity.mobileNumber)){
-					getProjectList();
-					setIdentity({
-						...identity,
-						entered: true
-					});
-					console.log('identity validation success');
-				}
+//				if(checkValideIdentity(identity.name, identity.mobileNumber)){
+//					getProjectList();
+//					setIdentity({
+//						...identity,
+//						entered: true
+//					});
+//					console.log('identity validation success');
+//				}
 			}}>확인</button>
 		</div>;
 
@@ -233,7 +255,7 @@ export const Project = () => {
 		<div className="projectBoard">
 			{identity.entered ? null : identityInput}
 			{identity.entered ? <div>[{projectList}]</div> : null}
-			{!identity.entered ? projectInput : null}
+			{identity.entered ? projectInput : null}
 		</div>
 	);
 }
