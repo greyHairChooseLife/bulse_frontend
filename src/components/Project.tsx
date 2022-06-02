@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -18,6 +18,10 @@ interface IIdentity {
 }
 
 interface INewProject {
+	registerDate: Date
+	identityName: string
+	identityMobileNumber: number | ''
+	projectDate: Date
 	projectTime: number
 	projectHour: number 
 	projectSubject: string
@@ -30,61 +34,62 @@ interface INewProject {
 
 export const Project = () => {
 
-	const [ identity, setIdentity ] = useState<IIdentity>({mobileNumber: '', name: '', entered: false});
+	const initialValues: {initNewProject: INewProject, } = {
+		initNewProject: {
+			registerDate: new Date(), 
+			identityName: '',
+			identityMobileNumber: '',
+			projectDate: new Date(),
+			projectTime: 14,
+			projectHour: 1,
+			projectSubject: '',
+			projectDescription: '',
+			bankAccount: 0,
+			bankHost: '',
+			bankHolderName:'' 
+			},
+	}
+
+	// State
 	const [ projectList, setProjectList ] = useState<null>(null);
-	const [ newProject, setNewProject ] = useState<INewProject>({
-		projectTime: 14,
-		projectHour: 1,
-		projectSubject: '',
-		projectDescription: '',
-		bankAccount: 0,
-		bankHost: '',
-		bankHolderName:'' 
-	});
+	const [ newProject, setNewProject ] = useState<INewProject>(initialValues.initNewProject);
 	const [ newProjectDate, setNewProjectDate ] = useState<Date>(new Date());
+
+	const [ identityConfirm, setIdentityConfirm ] = useState<boolean>(false);
 
 	const [ mobileNumberErrMsg, setMobileNumberErrMsg ] = useState<string>('숫자만 입력 해 주세요.');
 	const [ nameErrMsg, setNameErrMsg ] = useState<string>('이름을 입력 해 주세요.');
-
 	const [ subjectErrMsg, setSubjectErrMsg ] = useState<string>('제목을 입력 해 주세요.');
 	const [ descriptionErrMsg, setDescriptionErrMsg ] = useState<string>('상세 설명을 조금만 입력 해 주세요.');
 	const [ bankAccountErrMsg, setBankAccountErrMsg ] = useState<string>('계좌번호를 정확히 적어주세요.');
 	const [ bankHostErrMsg, setBankHostErrMsg ] = useState<string>('어떤 은행인지 입력 해 주세요.');
 	const [ bankHolderNameErrMsg, setBankHolderNameErrMsg ] = useState<string>('계좌 소유자를 입력 해 주세요.');
 
-	const initialPostBag: postNewProjectType = {
-		registerDate: new Date(),
-		mobileNumber: '',
-		name: '',
-		entered: false,
-		projectDate: new Date(),
-		projectTime: 0,
-		projectHour: 0,
-		projectSubject: '',
-		projectKeyword: '',
-		projectDescription: '',
-		bankAccount: 0,
-		bankHost: '',
-		bankHolderName: '',
-	}
-	const [ postBag, setPostBag ] = useState<postNewProjectType>(initialPostBag);
+	//	프로젝트 날짜 선택은 무슨무슨 노드 모듈을 이용하는데, 간단히 사용하기 위해 따로 state값을 만들었다. 그래서 이런식의로 useEffect를 걸어준다.
+	useEffect(() => {
+		setNewProject({
+			...newProject,
+			projectDate: newProjectDate
+		})
+	}, [newProjectDate])
 
+	
 	// About IDENTITY
 	// 타이핑 할 때마다 setter함수 실행
 	const onChangeIdentity = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
-		setIdentity({
-			...identity,
+		setNewProject({
+			...newProject,
 			[name]: value,
-		});
-		
+		})
+
 	// 이름, 전화번호 유효성 확인
 		switch(name){
-			case 'name':
+			case 'identityName':
 				if(value.trim() === '') setNameErrMsg('이름을 입력 해 주세요.');
 				else setNameErrMsg('');
 				break;
-			case 'mobileNumber':
+			case 'identityMobileNumber':
 				let haveNaN = false;
 				value.split('').forEach((ele) => {
 					if(isNaN(parseInt(ele))) haveNaN = true;
@@ -106,30 +111,26 @@ export const Project = () => {
 	const identityInput = 
 		<div>
 			<h2>identity</h2>
-			<input type="text" placeholder="name" onChange={onChangeIdentity} value={identity.name} name="name"></input>
-			<label>{nameErrMsg}</label>
-			<input type="text" placeholder="mobile" onChange={onChangeIdentity} value={identity.mobileNumber} name="mobileNumber"></input>
-			<label>{mobileNumberErrMsg}</label>
-			<button onClick={() => {
-				if(onClickIsFineIdentity()){
-					getProjectList();
-					setIdentity({
-						...identity,
-						entered: true
-					});
-					setPostBag({
-						...postBag,
-						name: identity.name,
-						mobileNumber: identity.mobileNumber,
-						entered: true
-					})
-				}
-				}} onSubmit={(e)=>e.preventDefault()}>확인</button>
+			<form onSubmit={e => {e.preventDefault();}}>
+				<input type="text" placeholder="name" onChange={onChangeIdentity} value={newProject.identityName} name="identityName"></input>
+				<label>{nameErrMsg}</label>
+				<input type="text" placeholder="mobile" onChange={onChangeIdentity} value={newProject.identityMobileNumber} name="identityMobileNumber"></input>
+				<label>{mobileNumberErrMsg}</label>
+				<button onClick={() => {
+					if(onClickIsFineIdentity()){
+						getProjectList();
+						setIdentityConfirm(true);
+					}else{
+						setIdentityConfirm(false);
+						//else의 경우를 위한 이벤트는 상시 반응형(?)으로 만들자. 말하자면 errMsg를 띄우기보단 그냥 제출 버튼에 투명도 50%를 먹이면서 클릭 자체가 안되도록 한다던가.
+					}
+				}}>확인</button>
+			</form>
 		</div>;
 
 	// 입력된 이름, 전화번호로 등록된 projectList 받아오기
 	const getProjectList = async () => {
-		const response = await api.get(`/project/${identity.mobileNumber}/${identity.name}`);
+		const response = await api.get(`/project/${newProject.identityMobileNumber}/${newProject.identityName}`);
 		setProjectList(response.data);
 	};
 
@@ -193,14 +194,22 @@ export const Project = () => {
 			});
 		}
 	}
-	
+
 	const projectInput =
 		<div>
 			<form onSubmit={e => {
 				e.preventDefault();
-				console.log(postBag);
-				//api.post('2');
-				}}>
+				if(!onClickIsFineNewProject()){
+					//	이 경우를 위한 이벤트는 상시 반응형(?)으로 만들자. 말하자면 errMsg를 띄우기보단 그냥 제출 버튼에 투명도 50%를 먹이면서 클릭 자체가 안되도록 한다던가.
+					alert('잘 입력 해줘요!!');
+					return false;
+				}else{
+					//api.post('2');
+					const result = api.post(`project`, newProject);
+					console.log(result);
+					//console.log('this is the END: ', newProject);
+				}
+			}}>
 				<h2>about Project</h2>
 				<Calendar defaultValue={new Date()} minDate={new Date()} onChange={setNewProjectDate} value={newProjectDate}></Calendar>
 				<select size={1} onChange={onChangeProject} name="projectTime">
@@ -236,32 +245,15 @@ export const Project = () => {
 				<input type="text" placeholder="bankHolderName" onChange={onChangeProject} name="bankHolderName"></input>
 				<label>{bankHolderNameErrMsg}</label>
 
-				<button type="submit" onClick={() => {
-					if(!onClickIsFineNewProject()){
-						alert('잘 입력 해줘요!!');
-					}else{	
-						setPostBag({
-							...postBag,
-							projectDate: newProjectDate,
-							projectTime: newProject.projectTime,
-							projectHour: newProject.projectHour,
-							projectSubject: newProject.projectSubject,
-							projectKeyword: newProject.projectKeyword,
-							projectDescription: newProject.projectDescription,
-							bankAccount: newProject.bankAccount,
-							bankHost: newProject.bankHost,
-							bankHolderName: newProject.bankHolderName,
-						})
-					}
-				}}>신청완료</button>
+				<button type="submit">신청완료</button>
 			</form>
 		</div>;
 
 	return (
 		<div className="projectBoard">
-			{identity.entered ? null : identityInput}
-			{identity.entered ? <div>[{projectList}]</div> : null}
-			{identity.entered ? projectInput : null}
+			{identityConfirm ? null : identityInput}
+			{identityConfirm ? <div>[{projectList}]</div> : null}
+			{identityConfirm ? projectInput : null}
 		</div>
 	);
 }
