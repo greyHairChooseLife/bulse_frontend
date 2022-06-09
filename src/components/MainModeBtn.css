@@ -1,0 +1,62 @@
+.SpeakerBtn {
+	font-size: 4rem;
+	cursor: pointer;
+	position: relative;
+	width: 90%;
+	height: 90%;
+	left: 5%;
+	top: 5%;
+	border: none;
+	color: white;
+	background-color: black;
+	outline: none;
+}
+.SpeakerBtn:hover {
+	background-color: brown;
+}
+.SpeakerBtn:active {
+	top: 6%;
+	left: 6%;
+}
+
+.ListenerBtn {
+	font-size: 4rem;
+	cursor: pointer;
+	position: relative;
+	width: 90%;
+	height: 90%;
+	left: 5%;
+	top: 5%;
+	border: none;
+	color: white;
+	background-color: black;
+	outline: none;
+}
+.ListenerBtn:hover {
+	background-color: brown;
+}
+.ListenerBtn:active {
+	top: 6%;
+	left: 6%;
+}
+
+.ChatterBtn {
+	font-size: 4rem;
+	cursor: pointer;
+	position: relative;
+	width: 90%;
+	height: 90%;
+	left: 5%;
+	top: 5%;
+	border: none;
+	color: white;
+	background-color: black;
+	outline: none;
+}
+.ChatterBtn:hover {
+	background-color: brown;
+}
+.ChatterBtn:active {
+	top: 6%;
+	left: 6%;
+}

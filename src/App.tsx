@@ -1,41 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { Project } from './components/Project';
+import { Speak } from './components/speak/Speak';
+import { SpeakerBtn, ListenerBtn, ChatterBtn } from './components/MainModeBtn';
 import './App.css';
 
-type mainMode = 'user' | 'project' | 'arena' | null;
+type mainMode = 'speaker' | 'listener' | 'chatter' | null;
 
 export const App = () => {
 
 	const [ mainMode, setMainMode ] = useState<mainMode>(null);
 
+	const speakerBtn = <SpeakerBtn onclickEvent={setMainMode}></SpeakerBtn>
+	const listenerBtn = <ListenerBtn onclickEvent={setMainMode}></ListenerBtn>
+	const chatterBtn = <ChatterBtn onclickEvent={setMainMode}></ChatterBtn>
+
 	let article = null;
 	switch (mainMode){
-		case 'user':
-			article = 'userComponent';
+		case 'speaker':
+			article = <Speak></Speak>
 			break;
-		case 'project':
-			article = <Project></Project>
+		case 'listener':
+			article = 'listenerComponent';
 			break;
-		case 'arena':
-			article = 'arenaComponent';
+		case 'chatter':
+			article = 'chatterComponent';
 			break;
 		default :
 			console.log('mainMode :', mainMode);
 	}
 
+	const mainModeBtnBlock = 
+			<div className="MainModeBtn">
+				{ speakerBtn }
+				{ listenerBtn }
+				{ chatterBtn }
+			</div>;
+
+	const articleBlock = 
+			<div className="MainArticle">
+				{ article }
+			</div>;
+	
+
 	return (
 		<div className="App">
-			<button className="btnUser" onClick={() => {
-				setMainMode('user');
-			}}>user</button>
-			<button className="btnProject" onClick={() => {
-				setMainMode('project');
-			}}>project</button>
-			<button className="btnArena" onClick={() => {
-				setMainMode('arena');
-			}}>arena</button>
-
-			{ article }
+			{mainMode === null ? mainModeBtnBlock : articleBlock}
 		</div>
 	);
 }

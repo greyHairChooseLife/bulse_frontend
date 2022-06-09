@@ -1,3 +1,21 @@
-.btnUser {
-	color: red;
+body {
+	margin: 0;
+}
+
+.MainModeBtn {
+	position: absolute;
+	width: 80vw;
+	height: 40vh;
+	top: 40vh;
+	left: 10vw;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+}
+
+.MainArticle {
+	position: absolute;
+	width: 90vw;
+	height: 90vh;
+	top: 5vh;
+	left: 5vw;
 }
