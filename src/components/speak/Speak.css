@@ -299,3 +299,25 @@
 	color: white;
 	border: none;
 }
+
+.explainationOfState {
+	position: absolute;
+	top: 36vh;
+	left: 11.7vw;
+	font-size: 1.2rem;
+	line-height: 0.9rem;
+	background-color: green;
+	color: white;
+	padding: 1rem 2rem;
+	visibility: hidden;
+}
+.explainationOfState span {
+	font-weight: bold;
+}
+.projectList th:nth-child(2):hover {
+	background-color: green;
+	color: white;
+}
+.onExplainationHover {
+	visibility: visible !important;
+}

@@ -98,6 +98,7 @@ export const IdentityInput = (props: IdentityInputType) => {
 
 	return (
 		<div className="identityInput">
+			<p>number : 12321313112</p>
 			{identityInput}
 		</div>
 	);
@@ -378,12 +379,15 @@ export const ProjectList = (props: projectListType) => {
 				</tr>
 	})
 
+	const [ explainationOfStateClassName, setExplainationOfStateClassName ] = useState<string>('explainationOfState');
+
+					//<th onMouseEnter={()=>{explainationOfStateClassName = 'explainationOfState onExplainationHover'}} onMouseLeave={()=>{explainationOfStateClassName = 'explainationOfState'}}>상태</th>
 	const tableOfList = 
 		<table>
 			<thead>
 				<tr>
 					<th></th>
-					<th>상태</th>
+					<th onMouseEnter={()=>{setExplainationOfStateClassName('explainationOfState onExplainationHover')}} onMouseLeave={()=>{setExplainationOfStateClassName('explainationOfState')}}>상태</th>
 					<th>일시</th>
 					<th>제목</th>
 					<th>참석자</th>
@@ -396,10 +400,19 @@ export const ProjectList = (props: projectListType) => {
 			</tbody>
 		</table>;
 
+	const explainationOfState = 
+		<div className={explainationOfStateClassName}>
+			<p><span>대기</span> : 제안서 제출 시 ~ 관리자 승인 전. 제출된 연락처로 관리자가 연락을 취합니다.</p>
+			<p><span>모집</span> : 모든 사람들이 볼 수 있게 제안서가 노출 되고, 참석 예약을 할 수 있습니다.</p>
+			<p><span>확정</span> : 최소(필수) 예약 인원을 충족해서 일정이 확정 된 상태입니다.</p>
+			<p><span>취소</span> : 관리자 취소 혹은 최소(필수) 예약 인원 미달로 취소된 상태입니다.</p>
+		</div>;
+
 	return (
 		<div className="projectList">
 			{identity}
 			{tableOfList}
+			{explainationOfState}
 			<button onClick={onClickNewBtn}>새로운 제안</button>
 		</div>
 	);
