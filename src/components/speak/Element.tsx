@@ -74,6 +74,7 @@ export const IdentityInput = (props: IdentityInputType) => {
 		const response = await api.get(`/project/${props.newProject.identityMobileNumber}/${props.newProject.identityName}`);
 		props.setProjectList(response.data);
 	};
+
 	//	모든 요소가 유효한지 확인
 	const isFineIdentity = (): boolean => {
 		if(isNameErr === false && isMobileNumberErr === false) return true;
@@ -315,6 +316,91 @@ export const ProjectInput = (props: projectInputType) => {
 			{projectInput.bank}
 			{projectInput.project}
 			{projectInput.formSubmit}
+		</div>
+	);
+}
+
+type projectListType = {
+	projectList: any
+	setProjectList: any
+	whoami: {name: string, mobileNumber: number}
+	setMode: any
+}
+export const ProjectList = (props: projectListType) => {
+
+	const { projectList } = props;
+	console.log('sex: ', projectList);
+
+	const onClickNewBtn = () => {
+		props.setMode('newProjectInput');
+	}
+
+	const identity = 
+		<div>
+			<p>{props.whoami.name}</p>
+			<p>{props.whoami.mobileNumber}</p>
+		</div>;
+
+	const tbody = projectList.map((ele: any) => {
+		const d = new Date(ele.project_date);
+		const formatDate: string = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+
+		// <td>{ele.attendee_id}명</td>
+		// 이놈 타입이 string인데, 배열을 string으로 만들어서 들어올거다. 그 포맷에 맞춰서 다시 배열로 변환하는 작업을 해 줘야 한다.
+	
+		// <td>{ele.attendee_message === null? 0 : ele.attendee_message}</td>
+		// 이놈도 나중에 mouseOver 이벤트에 팝업 뜨는 방식으로 만들자.
+
+		let confirmatory;
+		switch (ele.confirmatory){
+			case 1:
+				confirmatory = '모집';
+				break;
+			case 2:
+				confirmatory = '확정';
+				break;
+			case 3:
+				confirmatory = '취소';
+				break;
+			default:
+				confirmatory = '대기';
+				break;
+		}
+
+		return <tr key={ele.id}>
+					<td><button>보기/수정</button></td>
+					<td>{confirmatory}</td>
+					<td>{formatDate}, {ele.project_time}시({ele.project_hour}시간)</td>
+					<td>{ele.project_subject}</td>
+					<td>{ele.attendee_id === null? 0 : ele.attendee_id} 명</td>
+					<td>{ele.visited === null ? 0 : ele.visited} 회</td>
+					<td>{ele.attendee_message === null ? 0 : ele.attendee_message} 개</td>
+				</tr>
+	})
+
+	const tableOfList = 
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					<th>상태</th>
+					<th>일시</th>
+					<th>제목</th>
+					<th>참석자</th>
+					<th>조회수</th>
+					<th>응원</th>
+				</tr>
+			</thead>
+			<tbody>
+				{tbody}
+			</tbody>
+		</table>;
+
+	return (
+		<div className="projectList">
+			{identity}
+			{tableOfList}
+			<button onClick={onClickNewBtn}>새로운 제안</button>
 		</div>
 	);
 }
