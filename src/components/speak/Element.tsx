@@ -199,6 +199,11 @@ export const ProjectInput = (props: projectInputType) => {
 				bankHost: props.whatToUpdate!.bank_host,
 				bankHolderName: props.whatToUpdate!.bank_holder_name,
 			});
+			setIsSubjectErr(false);
+			setIsDescriptionErr(false);
+			setIsBankAccountErr(false);
+			setIsBankHostErr(false);
+			setIsBankHolderNameErr(false);
 		}
 	}, [])
 
@@ -319,9 +324,10 @@ export const ProjectInput = (props: projectInputType) => {
 	// create or update axios function to use at [Submit]
 	const onSubmitForm = (mode: string) => {
 		if(mode === 'create') api.post('project', props.newProject);
-		else if(mode === 'update'){
-			props.whatToUpdate
-		}
+		else if(mode === 'update') api.put('project', {
+			...props.newProject,
+			id: props.whatToUpdate!.id
+		});
 	}
 
 	const projectInput = {
@@ -433,12 +439,32 @@ export const ProjectInput = (props: projectInputType) => {
 	);
 }
 
+interface IProject {
+	attendee_id: string | null 
+	attendee_messsage: string | null
+	bank_account: number
+	bank_holder_name: string
+	bank_host: string
+	confirmatory: number | null
+	confirmatory_log: string | null
+	id: number
+	mobile_number: string
+	name: string
+	project_date: string
+	project_description: string
+	project_hour: number
+	project_keyword: string
+	project_subject: string
+	project_time: number
+	registered_datetime: string
+	visited: number | null
+}
 type modeType = 'identityInput' | 'getProjectList' | 'createNewProjectInput' | 'updateProject';
 type projectListType = {
 	projectList: any
 	whoami: {name: string, mobileNumber: number | ''}
 	setMode: Dispatch<SetStateAction<modeType>>
-	setWhatToUpdate?: any
+	setWhatToUpdate: Dispatch<SetStateAction<IProject | null>>
 }
 export const ProjectList = (props: projectListType) => {
 
