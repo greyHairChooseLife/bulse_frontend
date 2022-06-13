@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, SetStateAction, Dispatch } from 'react';
 import axios from 'axios';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -20,8 +20,8 @@ const errMsg = {
 type IdentityInputType = {
 	newProject: any
 	setNewProject: any
-	projectList: any
 	setProjectList: any
+	readAndUpdateProject?: any
 }
 
 export const IdentityInput = (props: IdentityInputType) => {
@@ -104,25 +104,70 @@ export const IdentityInput = (props: IdentityInputType) => {
 	);
 }
 
+interface INewProject {		//	새로운 프로젝트 제안 받을 때 수집할 정보들
+	registerDate: Date
+	identityName: string
+	identityMobileNumber: number | ''
+	projectDate: Date
+	projectTime: number
+	projectHour: number 
+	projectSubject: string
+	projectKeyword?: string
+	projectDescription: string
+	bankAccount: number | ''
+	bankHost: string
+	bankHolderName: string
+}
+interface IProject {		//	등록된 프로젝트를 api서버에서 받았을 때의 정보 형태
+	attendee_id: string | null 
+	attendee_messsage: string | null
+	bank_account: number
+	bank_holder_name: string
+	bank_host: string
+	confirmatory: number | null
+	confirmatory_log: string | null
+	id: number
+	mobile_number: string
+	name: string
+	project_date: string
+	project_description: string
+	project_hour: number
+	project_keyword: string
+	project_subject: string
+	project_time: number
+	registered_datetime: string
+	visited: number | null
+}
 type projectInputType = {
-	newProject: any
-	setNewProject: any
+	newProject: INewProject
+	setNewProject: Dispatch<SetStateAction<INewProject>>
+	mode: 'create' | 'update'
+	whatToUpdate?: IProject | null
 }
 
 export const ProjectInput = (props: projectInputType) => {
 
 	const initialValues = {
-		classNames: {
+		classNamesAsCreate: {
 			subject: '',
 			description: '',
 			bankAccount: '',
 			bankHost: '',
 			bankHolderName: ''
-		}
+		},
+		classNamesAsUpdate: {
+			subject: 'hideText',
+			description: 'hideText',
+			bankAccount: 'hideText',
+			bankHost: 'hideText',
+			bankHolderName: 'hideText'
+		},
+		defaultDateAsCreate: new Date(),
+		defaultDateAsUpdate: props.whatToUpdate !== undefined ? new Date(new Date(props.whatToUpdate!.project_date).getFullYear(), new Date(props.whatToUpdate!.project_date).getMonth(), new Date(props.whatToUpdate!.project_date).getDate()) : new Date()
 	}
 
 	//	조건부로 부여해서 유저가 유효성 검사 결과를 즉시 확인
-	const [ classNames, setClassNames ] = useState(initialValues.classNames);
+	const [ classNames, setClassNames ] = useState(props.mode === 'create' ? initialValues.classNamesAsCreate : initialValues.classNamesAsUpdate);
 	//	왜인지 모르겠으나 객체로 만들면 잘 작동하지 않는다.
 	const [ isSubjectErr, setIsSubjectErr ] = useState<boolean>(true);
 	const [ isDescriptionErr, setIsDescriptionErr ] = useState<boolean>(true);
@@ -130,13 +175,32 @@ export const ProjectInput = (props: projectInputType) => {
 	const [ isBankHostErr, setIsBankHostErr ] = useState<boolean>(true);
 	const [ isBankHolderNameErr, setIsBankHolderNameErr ] = useState<boolean>(true);
 	//	npm모듈 사용하느라 어쩔 수 없이 새로 만듦
-	const [ newProjectDate, setNewProjectDate ] = useState<Date>(new Date());
+	const [ newProjectDate, setNewProjectDate ] = useState<Date>(props.mode === 'create' ? initialValues.defaultDateAsCreate : initialValues.defaultDateAsUpdate);
 	useEffect(() => {
 		props.setNewProject({
 			...props.newProject,
 			projectDate: newProjectDate
 		})
 	}, [newProjectDate])
+
+	useEffect(() => {
+		if(props.mode === 'update') {
+			props.setNewProject({
+				...props.newProject,
+				identityName: props.whatToUpdate!.name,
+				identityMobileNumber: parseInt(props.whatToUpdate!.mobile_number),
+				projectDate: new Date(props.whatToUpdate!.project_date),
+				projectTime: props.whatToUpdate!.project_time,
+				projectHour: props.whatToUpdate!.project_hour,
+				projectSubject: props.whatToUpdate!.project_subject,
+				projectKeyword: props.whatToUpdate!.project_keyword,
+				projectDescription: props.whatToUpdate!.project_description,
+				bankAccount: props.whatToUpdate!.bank_account,
+				bankHost: props.whatToUpdate!.bank_host,
+				bankHolderName: props.whatToUpdate!.bank_holder_name,
+			});
+		}
+	}, [])
 
 	//	모든 요소가 유효한지 확인
 	const onClickIsFineNewProject = (): boolean => {
@@ -252,6 +316,14 @@ export const ProjectInput = (props: projectInputType) => {
 		}
 	}
 
+	// create or update axios function to use at [Submit]
+	const onSubmitForm = (mode: string) => {
+		if(mode === 'create') api.post('project', props.newProject);
+		else if(mode === 'update'){
+			props.whatToUpdate
+		}
+	}
+
 	const projectInput = {
 		formSubmit: 
 			<div className="projectInput_formSubmit">
@@ -261,55 +333,95 @@ export const ProjectInput = (props: projectInputType) => {
 						//	이 경우를 위한 이벤트는 상시 반응형(?)으로 만들자. 말하자면 errMsg를 띄우기보단 그냥 제출 버튼에 투명도 50%를 먹이면서 클릭 자체가 안되도록 한다던가.
 						alert('잘 입력 해줘요!!');
 						return false;
-					}else{
-						const result = api.post(`project`, props.newProject);
-					}
+					}else onSubmitForm(props.mode);
 				}}>
 					<button type="submit">신청완료</button>
 				</form>
 			</div>,
 		dateTime: 
-			<div className="projectInput_dateTime">
-				<label>날짜 선택</label>
-				<Calendar className="project_calendar" defaultValue={new Date()} minDate={new Date()} onChange={setNewProjectDate} value={newProjectDate}></Calendar>
-				<label>시작 시간</label>
-				<select size={1} onChange={onChangeInput} name="projectTime">
-					<option value="14">오후 2시</option>
-					<option value="15">오후 3시</option>
-					<option value="16">오후 4시</option>
-					<option value="17">오후 5시</option>
-					<option value="18">오후 6시</option>
-					<option value="19">오후 7시</option>
-					<option value="20">오후 8시</option>
-					<option value="21">오후 9시</option>
-					<option value="22">오후 10시</option>
-				</select>
-				<label>진행 시간</label>
-				<select size={1} onChange={onChangeInput} name="projectHour">
-					<option value="1">1시간</option>
-					<option value="2">2시간</option>
-				</select>
-			</div>,
+			props.mode === 'create' ? 
+				<div className="projectInput_dateTime">
+					<label>날짜 선택</label>
+					<Calendar className="project_calendar" minDate={new Date()} onChange={setNewProjectDate} value={newProjectDate}></Calendar>
+					<label>시작 시간</label>
+					<select size={1} onChange={onChangeInput} name="projectTime">
+						<option value="14">오후 2시</option>
+						<option value="15">오후 3시</option>
+						<option value="16">오후 4시</option>
+						<option value="17">오후 5시</option>
+						<option value="18">오후 6시</option>
+						<option value="19">오후 7시</option>
+						<option value="20">오후 8시</option>
+						<option value="21">오후 9시</option>
+						<option value="22">오후 10시</option>
+					</select>
+					<label>진행 시간</label>
+					<select size={1} onChange={onChangeInput} name="projectHour">
+						<option value="1">1시간</option>
+						<option value="2">2시간</option>
+					</select>
+				</div>
+			:
+				<div className="projectInput_dateTime">
+					<label>날짜 선택</label>
+					<Calendar className="project_calendar" minDate={new Date()} onChange={setNewProjectDate} value={newProjectDate}></Calendar>
+					<label>시작 시간</label>
+					<select size={1} onChange={onChangeInput} name="projectTime" value={props.newProject.projectTime}>
+						<option value="14">오후 2시</option>
+						<option value="15">오후 3시</option>
+						<option value="16">오후 4시</option>
+						<option value="17">오후 5시</option>
+						<option value="18">오후 6시</option>
+						<option value="19">오후 7시</option>
+						<option value="20">오후 8시</option>
+						<option value="21">오후 9시</option>
+						<option value="22">오후 10시</option>
+					</select>
+					<label>진행 시간</label>
+					<select size={1} onChange={onChangeInput} name="projectHour" value={props.newProject.projectHour}>
+						<option value="1">1시간</option>
+						<option value="2">2시간</option>
+					</select>
+				</div>,
 		bank:
-			<div className="projectInput_bank">
-				<input type="text" placeholder="계좌번호" onChange={onChangeInput} name="bankAccount"></input>
-				<label className={classNames.bankAccount}>{errMsg.bankAccount}</label>
-				<input type="text" placeholder="은행이름" onChange={onChangeInput} name="bankHost"></input>
-				<label className={classNames.bankHost}>{errMsg.bankHost}</label>
-				<input type="text" placeholder="계좌소유자" onChange={onChangeInput} name="bankHolderName"></input>
-				<label className={classNames.bankHolderName}>{errMsg.bankHolderName}</label>
-			</div>,
+			props.mode === 'create' ? 
+				<div className="projectInput_bank">
+					<input type="text" placeholder="계좌번호" onChange={onChangeInput} name="bankAccount"></input>
+					<label className={classNames.bankAccount}>{errMsg.bankAccount}</label>
+					<input type="text" placeholder="은행이름" onChange={onChangeInput} name="bankHost"></input>
+					<label className={classNames.bankHost}>{errMsg.bankHost}</label>
+					<input type="text" placeholder="계좌소유자" onChange={onChangeInput} name="bankHolderName"></input>
+					<label className={classNames.bankHolderName}>{errMsg.bankHolderName}</label>
+				</div>
+			:
+				<div className="projectInput_bank">
+					<input type="text" placeholder="계좌번호" onChange={onChangeInput} name="bankAccount" defaultValue={props.newProject.bankAccount}></input>
+					<label className={classNames.bankAccount}>{errMsg.bankAccount}</label>
+					<input type="text" placeholder="은행이름" onChange={onChangeInput} name="bankHost" defaultValue={props.newProject.bankHost}></input>
+					<label className={classNames.bankHost}>{errMsg.bankHost}</label>
+					<input type="text" placeholder="계좌소유자" onChange={onChangeInput} name="bankHolderName" defaultValue={props.newProject.bankHolderName}></input>
+					<label className={classNames.bankHolderName}>{errMsg.bankHolderName}</label>
+				</div>,
 		project:
-			<div className="projectInput_project">
-				<h1>제안서</h1>
-				<input type="text" placeholder="제목 또는 주제를 써 주세요." onChange={onChangeInput} name="projectSubject"></input>
-				<label className={classNames.subject}>{errMsg.subject}</label>
-				<input type="text" placeholder="키워드를, 쉼표로, 구분, 해, 써, 주세요." onChange={onChangeInput} onBlur={()=>{sanitizeProjectInput(props.newProject.projectKeyword)}} name="projectKeyword"></input>
-				<textarea placeholder="말 할 이야기의 구성을 자유롭게 써 주세요." onChange={onChangeInput} name="projectDescription"></textarea>
-				<label className={classNames.description}>{errMsg.description}</label>
-			</div>
+			props.mode === 'create' ? 
+				<div className="projectInput_project">
+					<h1>제안서</h1>
+					<input type="text" placeholder="제목 또는 주제를 써 주세요." onChange={onChangeInput} name="projectSubject"></input>
+					<label className={classNames.subject}>{errMsg.subject}</label>
+					<input type="text" placeholder="키워드를, 쉼표로, 구분, 해, 써, 주세요." onChange={onChangeInput} onBlur={()=>{sanitizeProjectInput(props.newProject.projectKeyword)}} name="projectKeyword"></input>
+					<textarea placeholder="말 할 이야기의 구성을 자유롭게 써 주세요." onChange={onChangeInput} name="projectDescription"></textarea>
+					<label className={classNames.description}>{errMsg.description}</label>
+				</div>
+			:
+				<div className="projectInput_project">
+					<h1>제안서</h1>
+					<input type="text" placeholder="제목 또는 주제를 써 주세요." onChange={onChangeInput} name="projectSubject" defaultValue={props.newProject.projectSubject}></input>
+					<label className={classNames.subject}>{errMsg.subject}</label>
+					<input type="text" placeholder="키워드를, 쉼표로, 구분, 해, 써, 주세요." onChange={onChangeInput} onBlur={()=>{sanitizeProjectInput(props.newProject.projectKeyword)}} name="projectKeyword" defaultValue={props.newProject.projectKeyword}></input>
+					<textarea placeholder="말 할 이야기의 구성을 자유롭게 써 주세요." onChange={onChangeInput} name="projectDescription" defaultValue={props.newProject.projectDescription}></textarea>
+					<label className={classNames.description}>{errMsg.description}</label>
+				</div>
 	}
-		
 
 	return (
 		<div className="projectInput">
@@ -321,19 +433,19 @@ export const ProjectInput = (props: projectInputType) => {
 	);
 }
 
+type modeType = 'identityInput' | 'getProjectList' | 'createNewProjectInput' | 'updateProject';
 type projectListType = {
 	projectList: any
-	setProjectList: any
-	whoami: {name: string, mobileNumber: number}
-	setMode: any
+	whoami: {name: string, mobileNumber: number | ''}
+	setMode: Dispatch<SetStateAction<modeType>>
+	setWhatToUpdate?: any
 }
 export const ProjectList = (props: projectListType) => {
 
 	const { projectList } = props;
-	console.log('sex: ', projectList);
 
 	const onClickNewBtn = () => {
-		props.setMode('newProjectInput');
+		props.setMode('createNewProjectInput');
 	}
 
 	const identity = 
@@ -342,7 +454,12 @@ export const ProjectList = (props: projectListType) => {
 			<p>{props.whoami.mobileNumber}</p>
 		</div>;
 
-	const tbody = projectList.map((ele: any) => {
+	const  onClickUpdateBtn = (id: number): void => {
+		props.setMode('updateProject');
+		props.setWhatToUpdate(projectList[id]);
+	}
+	
+	const tbody = projectList.map((ele: any, idx: number) => {
 		const d = new Date(ele.project_date);
 		const formatDate: string = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
 
@@ -369,7 +486,7 @@ export const ProjectList = (props: projectListType) => {
 		}
 
 		return <tr key={ele.id}>
-					<td><button>보기/수정</button></td>
+				<td><button onClick={() => onClickUpdateBtn(idx)}>보기/수정</button></td>
 					<td>{confirmatory}</td>
 					<td>{formatDate}, {ele.project_time}시({ele.project_hour}시간)</td>
 					<td>{ele.project_subject}</td>
@@ -381,7 +498,6 @@ export const ProjectList = (props: projectListType) => {
 
 	const [ explainationOfStateClassName, setExplainationOfStateClassName ] = useState<string>('explainationOfState');
 
-					//<th onMouseEnter={()=>{explainationOfStateClassName = 'explainationOfState onExplainationHover'}} onMouseLeave={()=>{explainationOfStateClassName = 'explainationOfState'}}>상태</th>
 	const tableOfList = 
 		<table>
 			<thead>

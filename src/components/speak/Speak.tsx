@@ -6,19 +6,19 @@ import './Speak.css';
 interface INewProject {
 	registerDate: Date
 	identityName: string
-	identityMobileNumber: number
+	identityMobileNumber: number | ''
 	projectDate: Date
 	projectTime: number
 	projectHour: number 
 	projectSubject: string
 	projectKeyword?: string
 	projectDescription: string
-	bankAccount: number
+	bankAccount: number | ''
 	bankHost: string
 	bankHolderName: string
 }
 
-type modeType = 'identityInput' | 'projectList' | 'newProjectInput' | 'projectUpdate';
+type modeType = 'identityInput' | 'getProjectList' | 'createNewProjectInput' | 'updateProject';
 
 interface IProject {
 	attendee_id: string | null 
@@ -47,13 +47,13 @@ export const Speak = () => {
 		initNewProject: {
 			registerDate: new Date(), 
 			identityName: '',
-			identityMobileNumber: 0,
+			identityMobileNumber: '',
 			projectDate: new Date(),
 			projectTime: 14,
 			projectHour: 1,
 			projectSubject: '',
 			projectDescription: '',
-			bankAccount: 0,
+			bankAccount: '',
 			bankHost: '',
 			bankHolderName:'' 
 			},
@@ -64,6 +64,7 @@ export const Speak = () => {
 	const [ newProject, setNewProject ] = useState<INewProject>(initialValues.initNewProject);
 	const [ isIdentified, setIsIdentified ] = useState(false);
 	const [ classNames, setClassNames ] = useState<'speaker_identity' | 'speaker_project'>('speaker_identity');
+	const [ whatToUpdate, setWhatToUpdate ] = useState<IProject | null>(null);
 
 	useEffect(() => {
 		if(projectList !== null) setIsIdentified(true);
@@ -73,24 +74,25 @@ export const Speak = () => {
 	useEffect(() => {
 		if(isIdentified){
 			setClassNames('speaker_project');
-			setMode('projectList');
+			setMode('getProjectList');
 		}
 		else setClassNames('speaker_identity');
 	}, [isIdentified])
 
 	let article = null;
+
 	switch (mode){
 		case 'identityInput':
-			article = <IdentityInput newProject={newProject} setNewProject={setNewProject} projectList={projectList} setProjectList={setProjectList}></IdentityInput>;
+			article = <IdentityInput newProject={newProject} setNewProject={setNewProject} setProjectList={setProjectList}></IdentityInput>;
 			break;
-		case 'projectList':
-			article = <ProjectList projectList={projectList} setProjectList={setProjectList} whoami={{name: newProject.identityName, mobileNumber: newProject.identityMobileNumber}} setMode={setMode}></ProjectList>;
+		case 'getProjectList':
+			article = <ProjectList projectList={projectList} whoami={{name: newProject.identityName, mobileNumber: newProject.identityMobileNumber}} setMode={setMode} setWhatToUpdate={setWhatToUpdate}></ProjectList>;
 			break;
-		case 'newProjectInput':
-			article = <ProjectInput newProject={newProject} setNewProject={setNewProject}></ProjectInput>;
+		case 'createNewProjectInput':
+			article = <ProjectInput mode={'create'} newProject={newProject} setNewProject={setNewProject}></ProjectInput>;
 			break;
-		case 'projectUpdate':
-			article = 'projectUpdate';
+		case 'updateProject':
+			article = <ProjectInput mode={'update'} whatToUpdate={whatToUpdate} newProject={newProject} setNewProject={setNewProject}></ProjectInput>;
 			break;
 	}
 
