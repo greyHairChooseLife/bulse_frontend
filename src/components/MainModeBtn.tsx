@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './MainModeBtn.css';
 
 
@@ -31,6 +31,17 @@ export const ChatterBtn = (props: ChatterBtnType) => {
 	return (
 		<button className="ChatterBtn" type="button" onClick={() => props.onclickEvent('chatter')}>
 			chatter
+		</button>
+	);
+}
+
+type AdminBtnType = {
+	onclickEvent: any
+}
+export const AdminBtn = (props: AdminBtnType) => {
+	return (
+		<button className="AdminBtn" type="button" onClick={() => props.onclickEvent('admin')}>
+			관리자
 		</button>
 	);
 }

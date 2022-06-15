@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Speak } from './components/speak/Speak';
-import { SpeakerBtn, ListenerBtn, ChatterBtn } from './components/MainModeBtn';
+import { Admin } from './components/admin/Admin';
+import { SpeakerBtn, ListenerBtn, ChatterBtn, AdminBtn } from './components/MainModeBtn';
 import './App.css';
 
-type mainMode = 'speaker' | 'listener' | 'chatter' | null;
+type mainMode = 'speaker' | 'listener' | 'chatter' | 'admin' |null;
 
 export const App = () => {
 
@@ -12,11 +13,12 @@ export const App = () => {
 	const speakerBtn = <SpeakerBtn onclickEvent={setMainMode}></SpeakerBtn>
 	const listenerBtn = <ListenerBtn onclickEvent={setMainMode}></ListenerBtn>
 	const chatterBtn = <ChatterBtn onclickEvent={setMainMode}></ChatterBtn>
+	const adminBtn = <AdminBtn onclickEvent={setMainMode}></AdminBtn>
 
 	let article = null;
 	switch (mainMode){
 		case 'speaker':
-			article = <Speak></Speak>
+			article = <Speak></Speak>;
 			break;
 		case 'listener':
 			article = 'listenerComponent';
@@ -24,20 +26,24 @@ export const App = () => {
 		case 'chatter':
 			article = 'chatterComponent';
 			break;
+		case 'admin':
+			article = <Admin></Admin>;
+			break;
 		default :
 			console.log('mainMode :', mainMode);
 	}
 
 	const mainModeBtnBlock = 
 			<div className="MainModeBtn">
-				{ speakerBtn }
-				{ listenerBtn }
-				{ chatterBtn }
+				{speakerBtn}
+				{listenerBtn}
+				{chatterBtn}
+				{adminBtn}
 			</div>;
 
 	const articleBlock = 
 			<div className="MainArticle">
-				{ article }
+				{article}
 			</div>;
 	
 

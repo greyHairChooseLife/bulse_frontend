@@ -60,3 +60,24 @@
 	top: 6%;
 	left: 6%;
 }
+
+.AdminBtn {
+	font-size: 2.5rem;
+	cursor: pointer;
+	position: absolute;
+	width: 200px;
+	height: 100px;
+	left: 5%;
+	top: -40vh;
+	border: none;
+	color: white;
+	background-color: green;
+	outline: none;
+}
+.AdminBtn:hover {
+	background-color: brown;
+}
+.AdminBtn:active {
+	top: -39.5vh;
+	left: 6%;
+}

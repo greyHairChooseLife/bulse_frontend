@@ -1,0 +1,32 @@
+.adminRegister {
+	position: relative;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	border: solid 2px red;
+}
+
+.adminLogin {
+	position: relative;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	border: solid 2px red;
+}
+
+.adminContent {
+	display: grid;
+	box-sizing: border-box;
+	border: solid 2px red;
+}
+
+.tempBtn {
+	position: absolute;
+	top:-4vh;
+	left:0;
+}
+.tempBtn button {
+	width: 100px;
+	height: 30px;
+	margin-left: 20px;
+}
