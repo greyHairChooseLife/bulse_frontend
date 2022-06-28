@@ -9,29 +9,53 @@ const api = axios.create({
 
 type modeType = 'register' | 'login' | 'content'
 type classNameType = 'adminRegister' | 'adminLogin' | 'adminContent'
+interface Iwhoami {
+	nickname: string
+	status: 1 | 2
+}
 
 export const Admin = () => {
 
 	const [ mode, setMode ] = useState<modeType>('register');
 	const [ classNames, setClassNames ] = useState<classNameType>('adminRegister');
+	const [ whoami, setWhoami ] = useState<Iwhoami | null>(null);
+
+	const [ article2, setArticle ]  = useState<any>(null);
 
 	useEffect(() => {
-		//
-		//		axios : get admin info that has status like alive
-		//		setMode by each case
-		//
+		const getLastAndSetWhoami = async () => {
+			const result = await api.get('admin');
+			setWhoami(result.data);
+		};
+		getLastAndSetWhoami();
 	}, [])
+
+	useEffect(() => {
+		if(whoami !== null){
+			switch (whoami.status){
+				case 1:
+					setMode('login');
+					break;
+				case 2:
+					setMode('register');
+					break;
+			}
+		}
+	}, [whoami])
 
 	useEffect(() => {
 		switch (mode){
 			case 'register':
-				setClassNames('adminRegister');
+				setClassNames('adminRegister')
+				setArticle(<Register></Register>)
 				break;
 			case 'login':
-				setClassNames('adminLogin');
+				setClassNames('adminLogin')
+				setArticle(<Login></Login>)
 				break;
 			case 'content':
-				setClassNames('adminContent');
+				setClassNames('adminContent')
+				setArticle(<Register></Register>)
 				break;
 		}
 	}, [mode])
@@ -42,6 +66,7 @@ export const Admin = () => {
 	// just for layout testing
 	// just for layout testing
 	const [ article, SET ]  = useState<any>(null);
+
 	const actLogin = () => { SET(<Login></Login>) }
 	const actDetailPage = () => { SET(<DetailPage></DetailPage>) }
 	const actRegister = () => { SET(<Register></Register>) }
@@ -73,11 +98,6 @@ export const Admin = () => {
 			</div>
 		)
 	}
-	// just for layout testing
-	// just for layout testing
-	// just for layout testing
-	// just for layout testing
-
 
 	return (
 		<div className={classNames}>
@@ -90,6 +110,13 @@ export const Admin = () => {
 				<button onClick={actDetailReview}>detail+review</button>
 			</div>
 			{article}
+			{article2}
 		</div>
 	);
+
+	// just for layout testing
+	// just for layout testing
+	// just for layout testing
+	// just for layout testing
+
 }

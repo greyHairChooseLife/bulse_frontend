@@ -4,9 +4,9 @@ import './Element.css';
 export const Login = () => {
 	return (
 		<div className="adminElementLogin">
-			<input placeholder="login_id"></input>
-			<button>login</button>
-			<p>It lasts for 1 hour.</p>
+			<input placeholder="로그인 아이디"></input>
+			<button>로그인</button>
+			<p>로그인 하시면 1시간 동안 유지됩니다.</p>
 		</div>
 	);
 }
