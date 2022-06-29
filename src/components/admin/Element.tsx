@@ -1,12 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import './Element.css';
+import axios from 'axios';
 
-export const Login = () => {
+const api = axios.create({
+	baseURL: `http://${process.env.REACT_APP_API_SERVER_HOST}:${process.env.REACT_APP_API_SERVER_PORT}`,
+})
+
+interface IloginProps {
+	nickname: string
+	setWhoami: any
+	setMode: any
+}
+export const Login = (props: IloginProps) => {
+
+	const onSubmitLogin = async (e: any) => {
+		const answer = await api.post('/admin', {proposed: e.target.input.value});
+		console.log('obj return as answer: ', answer);
+		if(answer.data.msg === 'login success'){
+			props.setWhoami(answer.data.value);
+			props.setMode('content');
+		}else{
+			alert(answer.data.msg);
+		}
+	}
+
 	return (
 		<div className="adminElementLogin">
-			<input placeholder="로그인 아이디"></input>
-			<button>로그인</button>
+			<p>{props.nickname}님 안녕하세요!!</p>
 			<p>로그인 하시면 1시간 동안 유지됩니다.</p>
+			<form onSubmit={e => {
+				e.preventDefault();
+				onSubmitLogin(e);
+				}}>
+				<input placeholder="로그인 아이디" name="input"></input>
+				<button>로그인</button>
+			</form>
 		</div>
 	);
 }

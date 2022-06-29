@@ -9,30 +9,41 @@ const api = axios.create({
 
 type modeType = 'register' | 'login' | 'content'
 type classNameType = 'adminRegister' | 'adminLogin' | 'adminContent'
-interface Iwhoami {
+interface IlastAdmin {
 	nickname: string
 	status: 1 | 2
+}
+interface Iwhoami {
+	id: number
+    login_id: string
+    nickname: string
+    mobile_number: string
+    status: number
+    login_record: string | null
+    register: Date
+	deregister: Date | null
 }
 
 export const Admin = () => {
 
 	const [ mode, setMode ] = useState<modeType>('register');
 	const [ classNames, setClassNames ] = useState<classNameType>('adminRegister');
+	const [ lastAdmin, setLastAdmin ] = useState<IlastAdmin | null>(null);
 	const [ whoami, setWhoami ] = useState<Iwhoami | null>(null);
 
 	const [ article2, setArticle ]  = useState<any>(null);
 
 	useEffect(() => {
-		const getLastAndSetWhoami = async () => {
-			const result = await api.get('admin');
-			setWhoami(result.data);
+		const getLastAndSet = async () => {
+			const result = await api.get('admin');	//최근 계정의 status와 nickname을 가져온다.
+			setLastAdmin(result.data);
 		};
-		getLastAndSetWhoami();
+		getLastAndSet();
 	}, [])
 
 	useEffect(() => {
-		if(whoami !== null){
-			switch (whoami.status){
+		if(lastAdmin !== null){
+			switch (lastAdmin.status){
 				case 1:
 					setMode('login');
 					break;
@@ -41,7 +52,7 @@ export const Admin = () => {
 					break;
 			}
 		}
-	}, [whoami])
+	}, [lastAdmin])
 
 	useEffect(() => {
 		switch (mode){
@@ -51,11 +62,18 @@ export const Admin = () => {
 				break;
 			case 'login':
 				setClassNames('adminLogin')
-				setArticle(<Login></Login>)
+				setArticle(<Login nickname={lastAdmin!.nickname} setWhoami={setWhoami} setMode={setMode}></Login>)
 				break;
 			case 'content':
 				setClassNames('adminContent')
-				setArticle(<Register></Register>)
+				setArticle(
+					<div className="Format">
+						<Identity></Identity>
+						<StateTaps></StateTaps>
+						<CalendarFormat></CalendarFormat>
+						<DiagramFormat></DiagramFormat>
+					</div>
+				)
 				break;
 		}
 	}, [mode])
@@ -67,7 +85,7 @@ export const Admin = () => {
 	// just for layout testing
 	const [ article, SET ]  = useState<any>(null);
 
-	const actLogin = () => { SET(<Login></Login>) }
+	const actLogin = () => { SET(<Login nickname='adf' setWhoami={setWhoami} setMode={setMode}></Login>) }
 	const actDetailPage = () => { SET(<DetailPage></DetailPage>) }
 	const actRegister = () => { SET(<Register></Register>) }
 	const actCalF = () => { 
