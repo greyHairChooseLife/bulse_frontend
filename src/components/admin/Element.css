@@ -56,16 +56,6 @@
 	box-sizing: border-box;
 }
 
-.adminElementTextTableFormat {
-	position: relative;
-	width: 100%;
-	height: 70%;
-	border: solid 2px green;
-	box-sizing: border-box;
-	text-align: center;
-	padding-top: 15%;
-}
-
 .adminElementDetailPage {
 	position: relative;
 	left: -2.5%;

@@ -15,7 +15,6 @@ export const Login = (props: IloginProps) => {
 
 	const onSubmitLogin = async (e: any) => {
 		const answer = await api.post('/admin', {proposed: e.target.input.value});
-		console.log('obj return as answer: ', answer);
 		if(answer.data.msg === 'login success'){
 			props.setWhoami(answer.data.value);
 			props.setMode('content');
@@ -45,17 +44,30 @@ export const Register = () => {
 			<input placeholder="login_id"></input>
 			<input placeholder="login_id again"></input>
 			<input placeholder="nickname"></input>
-			<button></button>
+			<button>계정 생성</button>
 		</div>
 	);
 }
 
-export const Identity = () => {
+interface IidentityProps {
+	whoami: any
+	setMode: any
+}
+export const Identity = (props: IidentityProps) => {
+	const onLogOut = () => {
+		props.setMode('login');
+	}
+	const onDeregister = () => {
+		if(confirm('정말로 탈퇴하시겠습니까?')){
+			api.put('/admin', {id: props.whoami.id});
+			props.setMode('register');
+		}
+	}
 	return (
 		<div className="adminElementIdentity">
-			<p>//nickname// : welcome, how's it going? :D</p>
-			<button>logout</button>
-			<button>deregister</button>
+			<p>welcome {props.whoami.nickname}, how's it going? :D</p>
+			<button onClick={onLogOut}>logout</button>
+			<button onClick={onDeregister}>deregister</button>
 		</div>
 	);
 }
@@ -82,14 +94,6 @@ export const DiagramFormat = () => {
 	return (
 		<div className="adminElementDiagramFormat">
 			I am a diagram.
-		</div>
-	);
-}
-
-export const TextTalbeFormat = () => {
-	return (
-		<div className="adminElementTextTableFormat">
-			I am Text Table.
 		</div>
 	);
 }

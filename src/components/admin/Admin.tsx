@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Login, Register, Identity, StateTaps, CalendarFormat, DiagramFormat, TextTalbeFormat, DetailPage, CommentTextarea, PrivateNoteTextarea } from './Element';
+import { Login, Register, Identity, StateTaps, CalendarFormat, DiagramFormat, DetailPage, CommentTextarea, PrivateNoteTextarea } from './Element';
 import axios from 'axios';
 import './Admin.css';
 
@@ -68,7 +68,7 @@ export const Admin = () => {
 				setClassNames('adminContent')
 				setArticle(
 					<div className="Format">
-						<Identity></Identity>
+						<Identity whoami={whoami} setMode={setMode}></Identity>
 						<StateTaps></StateTaps>
 						<CalendarFormat></CalendarFormat>
 						<DiagramFormat></DiagramFormat>
@@ -83,7 +83,7 @@ export const Admin = () => {
 	// just for layout testing
 	// just for layout testing
 	// just for layout testing
-	const [ article, SET ]  = useState<any>(null);
+	const [ testButtons, SET ]  = useState<any>(null);
 
 	const actLogin = () => { SET(<Login nickname='adf' setWhoami={setWhoami} setMode={setMode}></Login>) }
 	const actDetailPage = () => { SET(<DetailPage></DetailPage>) }
@@ -95,15 +95,6 @@ export const Admin = () => {
 				<StateTaps></StateTaps>
 				<CalendarFormat></CalendarFormat>
 				<DiagramFormat></DiagramFormat>
-			</div>
-		)
-	}
-	const actTableF = () => { 
-		SET(
-			<div className="Format">
-				<Identity></Identity>
-				<StateTaps></StateTaps>
-				<TextTalbeFormat></TextTalbeFormat>
 			</div>
 		)
 	}
@@ -123,12 +114,12 @@ export const Admin = () => {
 				<button onClick={actLogin}>login</button>
 				<button onClick={actRegister}>register</button>
 				<button onClick={actCalF}>calFormat</button>
-				<button onClick={actTableF}>tableFormat</button>
 				<button onClick={actDetailPage}>detailPage</button>
 				<button onClick={actDetailReview}>detail+review</button>
 			</div>
-			{article}
 			{article2}
+
+			{testButtons}
 		</div>
 	);
 
