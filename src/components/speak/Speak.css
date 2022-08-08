@@ -52,12 +52,16 @@
 	position: relative;
 	cursor: pointer;
 }
-.identityInput button:hover {
+.liveBtn:hover {
 	background-color: brown;
 }
-.identityInput button:active {
+.liveBtn:active {
 	top: 21vh;
 	left: 36%;
+}
+.deadBtn {
+	background-color: grey !important;
+	cursor: not-allowed !important;
 }
 
 .projectInput {

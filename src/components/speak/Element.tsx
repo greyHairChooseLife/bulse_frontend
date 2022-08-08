@@ -32,6 +32,8 @@ export const IdentityInput = (props: IdentityInputType) => {
 	const [ nameLabelClassName, setNameLabelClassName ] = useState('');
 	const [ mobileLabelClassName, setMobileLabelClassName ] = useState('');
 
+	const [ isFineIdentity, setIsFineIdentity ] = useState<boolean>(false);
+
 	// About IDENTITY
 	const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -75,11 +77,15 @@ export const IdentityInput = (props: IdentityInputType) => {
 		props.setProjectList(response.data);
 	};
 
-	//	모든 요소가 유효한지 확인
-	const isFineIdentity = (): boolean => {
-		if(isNameErr === false && isMobileNumberErr === false) return true;
-		else return false;
-	}
+	let inquireBtn = {
+		live : <button className={"liveBtn"} onClick={() => getProjectList()}>조회하기</button>,
+		dead : <button className={"deadBtn"}>조회하기</button>,
+	};
+	
+	useEffect(() => {
+		if(isNameErr === false && isMobileNumberErr === false) setIsFineIdentity(true);
+		else setIsFineIdentity(false);
+	}, [isNameErr, isMobileNumberErr])
 
 	const identityInput = 
 		<form onSubmit={e => {e.preventDefault(); return false;}}>
@@ -87,19 +93,12 @@ export const IdentityInput = (props: IdentityInputType) => {
 			<label className={nameLabelClassName}>{errMsg.name}</label>
 			<input type="text" placeholder="전화번호" onChange={onChangeInput} value={props.newProject.identityMobileNumber} name="identityMobileNumber" autoComplete="off"></input>
 			<label className={mobileLabelClassName}>{errMsg.mobileNumber}</label>
-			<button onClick={() => {
-				if(isFineIdentity()){
-					getProjectList();
-				}else{
-					//else의 경우를 위한 이벤트는 상시 반응형(?)으로 만들자. 말하자면 errMsg를 띄우기보단 그냥 제출 버튼에 투명도 50%를 먹이면서 클릭 자체가 안되도록 한다던가.
-				}
-			}}>조회하기</button>
 		</form>
 
 	return (
 		<div className="identityInput">
-			<p>number : 12321313112</p>
 			{identityInput}
+			{isFineIdentity === true ? inquireBtn.live : inquireBtn.dead}
 		</div>
 	);
 }
@@ -512,7 +511,7 @@ export const ProjectList = (props: projectListType) => {
 		}
 
 		return <tr key={ele.id}>
-				<td><button onClick={() => onClickUpdateBtn(idx)}>보기/수정</button></td>
+					<td><button onClick={() => onClickUpdateBtn(idx)}>보기/수정</button></td>
 					<td>{confirmatory}</td>
 					<td>{formatDate}, {ele.project_time}시({ele.project_hour}시간)</td>
 					<td>{ele.project_subject}</td>
