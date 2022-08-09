@@ -14,7 +14,7 @@ interface IloginProps {
 export const Login = (props: IloginProps) => {
 
 	const onSubmitLogin = async (e: any) => {
-		const answer = await api.post('/admin', {proposed: e.target.input.value});
+		const answer = await api.post('/admin/login', {proposed: e.target.input.value});
 		if(answer.data.msg === 'login success'){
 			props.setWhoami(answer.data.value);
 			props.setMode('content');
@@ -39,12 +39,48 @@ export const Login = (props: IloginProps) => {
 }
 
 export const Register = () => {
+	const [ id, setId ] = useState<string>('');
+	const [ idCheck, setIdCheck ] = useState<string>('');
+	const [ name, setName ] = useState<string>('');
+	const [ mobileNumber, setMobileNumber ] = useState<string>('');
+
+	const onChangeInput = async (e: any) => {
+		switch(e.target.name){
+			case 'id':
+				setId(e.target.value);
+				break;
+			case 'idCheck':
+				setIdCheck(e.target.value);
+				break;
+			case 'name':
+				setName(e.target.value);
+				break;
+			case 'mobileNumber':
+				setMobileNumber(e.target.value);
+				break;
+		}
+	}
+
+	const onSubmitForm = (e: any) => {
+		e.preventDefault();
+		api.post('/admin/register', {data: {
+			id: id,
+			idCheck: idCheck,
+			name: name,
+			mobileNumber: mobileNumber,
+		}})
+	}
+
 	return (
 		<div className="adminElementRegister">
-			<input placeholder="login_id"></input>
-			<input placeholder="login_id again"></input>
-			<input placeholder="nickname"></input>
-			<button>계정 생성</button>
+			<form onSubmit={onSubmitForm}>
+				<input placeholder="아이디" name="id" onChange={onChangeInput}></input>
+				<input placeholder="아이디 재확인" name="idCheck" onChange={onChangeInput}></input>
+				<input placeholder="이름" name="name" onChange={onChangeInput}></input>
+				<input placeholder="전화번호" name="mobileNumber" onChange={onChangeInput}></input>
+				<label>숫자만 적어주세요</label>
+				<button>계정 생성</button>
+			</form>
 		</div>
 	);
 }
