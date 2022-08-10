@@ -7,8 +7,8 @@ const api = axios.create({
 })
 
 interface IloginProps {
-	nickname: string
-	setWhoami: any
+	lastAdmin: any 
+	setWhologgedIn: any
 	setMode: any
 }
 export const Login = (props: IloginProps) => {
@@ -16,16 +16,18 @@ export const Login = (props: IloginProps) => {
 	const onSubmitLogin = async (e: any) => {
 		const answer = await api.post('/admin/login', {proposed: e.target.input.value});
 		if(answer.data.msg === 'login success'){
-			props.setWhoami(answer.data.value);
+			props.setWhologgedIn(answer.data.value);
 			props.setMode('content');
 		}else{
 			alert(answer.data.msg);
 		}
 	}
 
+	console.log('Login component: ', props.lastAdmin);
+
 	return (
 		<div className="adminElementLogin">
-			<p>{props.nickname}님 안녕하세요!!</p>
+			<p>{props.lastAdmin.nickname}님 안녕하세요!!</p>
 			<p>로그인 하시면 1시간 동안 유지됩니다.</p>
 			<form onSubmit={e => {
 				e.preventDefault();
@@ -38,7 +40,7 @@ export const Login = (props: IloginProps) => {
 	);
 }
 
-export const Register = () => {
+export const Register = (props: {setMode: any, setLastAdmin: any}) => {
 	const [ id, setId ] = useState<string>('');
 	const [ idCheck, setIdCheck ] = useState<string>('');
 	const [ name, setName ] = useState<string>('');
@@ -69,6 +71,8 @@ export const Register = () => {
 			name: name,
 			mobileNumber: mobileNumber,
 		}})
+		props.setLastAdmin({nickname: name, status: 1});
+		props.setMode('login');
 	}
 
 	return (
@@ -86,7 +90,7 @@ export const Register = () => {
 }
 
 interface IidentityProps {
-	whoami: any
+	whologgedIn: any
 	setMode: any
 }
 export const Identity = (props: IidentityProps) => {
@@ -95,13 +99,13 @@ export const Identity = (props: IidentityProps) => {
 	}
 	const onDeregister = () => {
 		if(confirm('정말로 탈퇴하시겠습니까?')){
-			api.put('/admin', {id: props.whoami.id});
+			api.put('/admin', {id: props.whologgedIn.id});
 			props.setMode('register');
 		}
 	}
 	return (
 		<div className="adminElementIdentity">
-			<p>welcome {props.whoami.nickname}, how's it going? :D</p>
+			<p>welcome {props.whologgedIn.nickname}, how's it going? :D</p>
 			<button onClick={onLogOut}>logout</button>
 			<button onClick={onDeregister}>deregister</button>
 		</div>

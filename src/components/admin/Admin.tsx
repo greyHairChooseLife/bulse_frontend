@@ -13,7 +13,7 @@ interface IlastAdmin {
 	nickname: string
 	status: 1 | 2
 }
-interface Iwhoami {
+interface IwhologgedIn {
 	id: number
     login_id: string
     nickname: string
@@ -29,7 +29,7 @@ export const Admin = () => {
 	const [ mode, setMode ] = useState<modeType>('register');
 	const [ classNames, setClassNames ] = useState<classNameType>('adminRegister');
 	const [ lastAdmin, setLastAdmin ] = useState<IlastAdmin | null>(null);
-	const [ whoami, setWhoami ] = useState<Iwhoami | null>(null);
+	const [ whologgedIn, setWhologgedIn ] = useState<IwhologgedIn | null>(null);
 
 	const [ article2, setArticle ]  = useState<any>(null);
 
@@ -58,17 +58,18 @@ export const Admin = () => {
 		switch (mode){
 			case 'register':
 				setClassNames('adminRegister')
-				setArticle(<Register></Register>)
+				setArticle(<Register setMode={setMode} setLastAdmin={setLastAdmin}></Register>)
 				break;
 			case 'login':
+				console.log('why?: ', lastAdmin);
 				setClassNames('adminLogin')
-				setArticle(<Login nickname={lastAdmin!.nickname} setWhoami={setWhoami} setMode={setMode}></Login>)
+				setArticle(<Login lastAdmin={lastAdmin} setWhologgedIn={setWhologgedIn} setMode={setMode}></Login>)
 				break;
 			case 'content':
 				setClassNames('adminContent')
 				setArticle(
 					<div className="Format">
-						<Identity whoami={whoami} setMode={setMode}></Identity>
+						<Identity whologgedIn={whologgedIn} setMode={setMode}></Identity>
 						<StateTaps></StateTaps>
 						<CalendarFormat></CalendarFormat>
 						<DiagramFormat></DiagramFormat>
@@ -85,7 +86,7 @@ export const Admin = () => {
 	// just for layout testing
 	const [ testButtons, SET ]  = useState<any>(null);
 
-	const actLogin = () => { SET(<Login nickname='adf' setWhoami={setWhoami} setMode={setMode}></Login>) }
+	const actLogin = () => { SET(<Login nickname='adf' setWhologgedIn={setWhologgedIn} setMode={setMode}></Login>) }
 	const actDetailPage = () => { SET(<DetailPage></DetailPage>) }
 	const actRegister = () => { SET(<Register></Register>) }
 	const actCalF = () => { 
